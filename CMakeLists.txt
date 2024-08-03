@@ -8,4 +8,6 @@ add_executable(my_wc
         src/args_reader.h
         src/args_reader.cpp
         src/counter.cpp
-        src/counter.h)
+        src/counter.h
+        src/options.cpp
+        src/options.h)

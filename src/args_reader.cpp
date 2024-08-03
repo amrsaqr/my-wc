@@ -11,7 +11,7 @@ void ArgsReader::Read(int argc, char** argv) {
         if (arg_len > 0) {
             if (arg[0] == '-') {
                 for (int j = 1; j < arg_len; ++j) {
-                    options_.push_back(arg[j]);
+                    options_.emplace_back(arg[j]);
                 }
             }
             else {

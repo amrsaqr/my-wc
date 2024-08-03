@@ -5,33 +5,32 @@
 #ifndef MY_WC_COUNTER_H
 #define MY_WC_COUNTER_H
 
+#include "options.h"
 #include <string>
 #include <vector>
-#include <iostream>
-#include <istream>
-#include <fstream>
+
 using std::string;
 using std::vector;
-using std::istream;
-using std::ifstream;
 
 class Counter {
 public:
-    Counter();
+    Counter(const Options& options);
 
-    Counter(string file_path);
+    Counter(const Options& options, string file_path);
 
-    void Count(const vector<char>& options);
+    void Count();
 
-    int GetBytesCount();
-
-    int GetLinesCount();
+    void Print() const;
 
 private:
-    bool reading_from_file_;
+    void Init();
+    const Options options_;
     const string file_path_;
-    int bytes_count;
-    int lines_count;
+
+    bool reading_from_file_;
+    size_t bytes_count_;
+    size_t lines_count_;
+    size_t words_count_;
 };
 
 

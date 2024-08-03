@@ -3,59 +3,98 @@
 //
 
 #include "counter.h"
+#include <iostream>
+#include <istream>
+#include <fstream>
+#include <iomanip>
+#include <utility>
+#include <codecvt>
+#include <locale>
+#include <cwctype>
+using std::istream;
+using std::ifstream;
+using std::cin;
+using std::cout;
+using std::setw;
+using std::endl;
+using std::wstring;
+using std::getline;
+using std::codecvt_utf8;
+using std::wstring_convert;
 
-Counter::Counter() {
+Counter::Counter(const Options& options) : options_(options) {
     reading_from_file_ = false;
-    bytes_count = 0;
-    lines_count = 0;
+    Init();
 }
 
-Counter::Counter(string file_path) : file_path_(std::move(file_path)) {
+Counter::Counter(const Options& options, string file_path) : options_(options), file_path_(std::move(file_path)) {
     reading_from_file_ = true;
-    bytes_count = 0;
-    lines_count = 0;
+    Init();
 }
 
-void Counter::Count(const vector<char>& options) {
-    bool countingBytes = false;
-    bool countingLines = false;
-    for (char option : options) {
-        if (option == 'c') {
-            countingBytes = true;
-        } else if (option == 'l') {
-            countingLines = true;
-        }
-    }
-
+void Counter::Count() {
     istream* in;
     if (reading_from_file_) {
         in = new ifstream(file_path_, std::ios::in);
     } else {
-        in = &std::cin;
+        in = &cin;
     }
 
-    char ch;
-    while (!in->eof()) {
-        in->get(ch);
-
-        if (countingBytes) {
-            ++bytes_count;
+    string line;
+    while (getline(*in, line)) {
+        // Count the bytes in the utf8 string
+        if (options_.CountingBytes()) {
+            bytes_count_ += line.size();
         }
 
-        if (countingLines && ch == '\n') {
-            ++lines_count;
+        // Convert to a wide string to be able to identify Unicode-16 characters
+        wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
+        wstring wline = convert.from_bytes(line);
+        for (int i = 0; i < wline.size(); ++i) {
+            wchar_t wch = wline[i];
+
+            if (options_.CountingWords()) {
+                if (!iswspace(wch) && (!i || iswspace(wline[i - 1]))) {
+                    ++words_count_;
+                }
+            }
+        }
+
+        // Increase the line count and also the byte count for the newline character
+        if (options_.CountingLines()) {
+            ++bytes_count_;
+            ++lines_count_;
         }
     }
 
     if (reading_from_file_) {
+        dynamic_cast<ifstream*>(in)->close();
         delete in;
     }
 }
 
-int Counter::GetBytesCount() {
-    return bytes_count;
+void Counter::Print() const {
+    if (options_.CountingLines()) {
+        cout << setw(8) << lines_count_;
+    }
+
+    if (options_.CountingWords()) {
+        cout << setw(8) << words_count_;
+    }
+
+    if (options_.CountingBytes()) {
+        cout << setw(8) << bytes_count_;
+    }
+
+    if (reading_from_file_) {
+        cout << ' ' << file_path_;
+    }
+
+    cout << endl;
 }
 
-int Counter::GetLinesCount() {
-    return lines_count;
+void Counter::Init() {
+    bytes_count_ = 0;
+    lines_count_ = 0;
+    words_count_ = 0;
 }

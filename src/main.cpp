@@ -3,27 +3,30 @@
 //
 
 #include "args_reader.h"
+#include "options.h"
 #include "counter.h"
 #include <iostream>
+#include <iomanip>
 using std::cout;
 using std::endl;
+using std::setw;
 
 int main(int argc, char** argv) {
     ArgsReader args_reader;
     args_reader.Read(argc, argv);
 
-    auto options = args_reader.GetOptions();
+    Options options(args_reader.GetOptions());
     auto files_paths = args_reader.GetFilesPaths();
 
     if (files_paths.empty()) {
-        Counter counter;
-        counter.Count(options);
-        cout << counter.GetLinesCount() << ' ' << counter.GetBytesCount() << endl;
+        Counter counter(options);
+        counter.Count();
+        counter.Print();
     } else {
         for (const string &file_path : files_paths) {
-            Counter counter(file_path);
-            counter.Count(options);
-            cout << counter.GetLinesCount() << ' ' << counter.GetBytesCount() << ' ' << file_path << endl;
+            Counter counter(options, file_path);
+            counter.Count();
+            counter.Print();
         }
     }
 
