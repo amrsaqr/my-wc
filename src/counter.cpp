@@ -48,13 +48,11 @@ void Counter::Count() {
         }
 
         // Convert to a wide string to be able to identify Unicode-16 characters
-        wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
-        wstring wline = convert.from_bytes(line);
-        for (int i = 0; i < wline.size(); ++i) {
-            wchar_t wch = wline[i];
-
-            if (options_.CountingWords()) {
-                if (!iswspace(wch) && (!i || iswspace(wline[i - 1]))) {
+        if (options_.CountingWords()) {
+            wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
+            wstring wline = convert.from_bytes(line);
+            for (int i = 0; i < wline.size(); ++i) {
+                if (!iswspace(wline[i]) && (!i || iswspace(wline[i - 1]))) {
                     ++words_count_;
                 }
             }
