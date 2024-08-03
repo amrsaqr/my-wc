@@ -15,6 +15,7 @@ using std::istream;
 using std::ifstream;
 using std::cin;
 using std::cout;
+using std::cerr;
 using std::setw;
 using std::endl;
 using std::wstring;
@@ -24,30 +25,34 @@ using std::wstring_convert;
 
 Counter::Counter(const Options& options) : options_(options) {
     reading_from_file_ = false;
-    Init();
 }
 
 Counter::Counter(const Options& options, string file_path) : options_(options), file_path_(std::move(file_path)) {
     reading_from_file_ = true;
-    Init();
 }
 
-void Counter::Count() {
+bool Counter::Count() {
     istream* in;
     if (reading_from_file_) {
         in = new ifstream(file_path_, std::ios::in);
+
+        if (in->fail()) {
+            cerr << file_path_ << ": Error opening file" << endl;
+            delete in;
+            return false;
+        }
     } else {
         in = &cin;
     }
 
     string line;
     while (getline(*in, line)) {
-        // Count the bytes in the utf8 string
+        // Count the bytes in the narrow (ASCII or UTF-8 like) string
         if (options_.CountingBytes()) {
             bytes_count_ += line.size();
         }
 
-        // Convert to a wide string to be able to identify Unicode-16 characters
+        // Convert to a wide string to be able to identify wide characters
         if (options_.CountingWords() || options_.CountingChars()) {
             wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
             wstring wline = convert.from_bytes(line);
@@ -65,7 +70,7 @@ void Counter::Count() {
             }
         }
 
-        // Increase the line count and also the byte count for the newline character
+        // Increase the bytes count, chars count, and lines count for the newline character
         if (options_.CountingBytes()) {
             ++bytes_count_;
         }
@@ -83,6 +88,8 @@ void Counter::Count() {
         dynamic_cast<ifstream*>(in)->close();
         delete in;
     }
+
+    return true;
 }
 
 void Counter::Print() const {
@@ -107,11 +114,4 @@ void Counter::Print() const {
     }
 
     cout << endl;
-}
-
-void Counter::Init() {
-    bytes_count_ = 0;
-    lines_count_ = 0;
-    words_count_ = 0;
-    chars_count_ = 0;
 }

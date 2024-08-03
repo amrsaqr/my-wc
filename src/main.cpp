@@ -12,6 +12,8 @@ using std::endl;
 using std::setw;
 
 int main(int argc, char** argv) {
+    bool file_path_failed = false;
+
     ArgsReader args_reader;
     args_reader.Read(argc, argv);
 
@@ -25,10 +27,14 @@ int main(int argc, char** argv) {
     } else {
         for (const string &file_path : files_paths) {
             Counter counter(options, file_path);
-            counter.Count();
-            counter.Print();
+            if (counter.Count()) {
+                counter.Print();
+            }
+            else {
+                file_path_failed = true;
+            }
         }
     }
 
-    return 0;
+    return file_path_failed ? 1 : 0;
 }
