@@ -18,7 +18,7 @@ public:
 
     Counter(const Options& options, string file_path);
 
-    // Returns false only and only if reading_from_file_ is true and a failure happened while opening the file
+    // Returns false if and only if reading_from_file_ is true and a failure happened while opening the file
     bool Count();
 
     void Print() const;
