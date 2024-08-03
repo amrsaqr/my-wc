@@ -31,6 +31,7 @@ private:
     size_t bytes_count_;
     size_t lines_count_;
     size_t words_count_;
+    size_t chars_count_;
 };
 
 

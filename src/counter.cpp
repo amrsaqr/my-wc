@@ -48,19 +48,33 @@ void Counter::Count() {
         }
 
         // Convert to a wide string to be able to identify Unicode-16 characters
-        if (options_.CountingWords()) {
+        if (options_.CountingWords() || options_.CountingChars()) {
             wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
             wstring wline = convert.from_bytes(line);
-            for (int i = 0; i < wline.size(); ++i) {
-                if (!iswspace(wline[i]) && (!i || iswspace(wline[i - 1]))) {
-                    ++words_count_;
+
+            if (options_.CountingChars()) {
+                chars_count_ += wline.size();
+            }
+
+            if (options_.CountingWords()) {
+                for (int i = 0; i < wline.size(); ++i) {
+                    if (!iswspace(wline[i]) && (!i || iswspace(wline[i - 1]))) {
+                        ++words_count_;
+                    }
                 }
             }
         }
 
         // Increase the line count and also the byte count for the newline character
-        if (options_.CountingLines()) {
+        if (options_.CountingBytes()) {
             ++bytes_count_;
+        }
+
+        if (options_.CountingChars()) {
+            ++chars_count_;
+        }
+
+        if (options_.CountingLines()) {
             ++lines_count_;
         }
     }
@@ -80,6 +94,10 @@ void Counter::Print() const {
         cout << setw(8) << words_count_;
     }
 
+    if (options_.CountingChars()) {
+        cout << setw(8) << chars_count_;
+    }
+
     if (options_.CountingBytes()) {
         cout << setw(8) << bytes_count_;
     }
@@ -95,4 +113,5 @@ void Counter::Init() {
     bytes_count_ = 0;
     lines_count_ = 0;
     words_count_ = 0;
+    chars_count_ = 0;
 }
