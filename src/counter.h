@@ -1,20 +1,20 @@
 //
-// Created by Amr Saqr on 31/07/2024.
+// Copyright 2024 Amr Saqr
 //
 
-#ifndef MY_WC_COUNTER_H
-#define MY_WC_COUNTER_H
+#ifndef COUNTER_H_
+#define COUNTER_H_
 
-#include "options.h"
 #include <string>
 #include <vector>
+#include "options.h"
 
 using std::string;
 using std::vector;
 
 class Counter {
-public:
-    Counter(const Options& options);
+ public:
+    explicit Counter(const Options& options);
 
     Counter(const Options& options, string file_path);
 
@@ -23,7 +23,7 @@ public:
 
     void Print() const;
 
-private:
+ private:
     const Options options_;
     const string file_path_;
 
@@ -35,4 +35,4 @@ private:
 };
 
 
-#endif //MY_WC_COUNTER_H
+#endif  // COUNTER_H_

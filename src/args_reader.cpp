@@ -1,5 +1,5 @@
 //
-// Created by Amr Saqr on 30/07/2024.
+// Copyright 2024 Amr Saqr
 //
 
 #include "args_reader.h"

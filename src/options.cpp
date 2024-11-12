@@ -1,5 +1,5 @@
 //
-// Created by Amr Saqr on 03/08/2024.
+// Copyright 2024 Amr Saqr
 //
 
 #include "options.h"

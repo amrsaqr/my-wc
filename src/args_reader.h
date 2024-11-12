@@ -1,9 +1,9 @@
 //
-// Created by Amr Saqr on 30/07/2024.
+// Copyright 2024 Amr Saqr
 //
 
-#ifndef MY_WC_ARGS_READER_H
-#define MY_WC_ARGS_READER_H
+#ifndef ARGS_READER_H_
+#define ARGS_READER_H_
 
 #include <vector>
 #include <string>
@@ -11,7 +11,7 @@ using std::vector;
 using std::string;
 
 class ArgsReader {
-public:
+ public:
     ArgsReader() = default;
 
     void Read(int argc, char** argv);
@@ -19,10 +19,10 @@ public:
     vector<char> GetOptions();
 
     vector<string> GetFilesPaths();
-private:
+ private:
     vector<char> options_;
     vector<string> files_paths_;
 };
 
 
-#endif //MY_WC_ARGS_READER_H
+#endif  // ARGS_READER_H_

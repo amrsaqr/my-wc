@@ -1,22 +1,22 @@
 //
-// Created by Amr Saqr on 03/08/2024.
+// Copyright 2024 Amr Saqr
 //
 
-#ifndef MY_WC_OPTIONS_H
-#define MY_WC_OPTIONS_H
+#ifndef OPTIONS_H_
+#define OPTIONS_H_
 
 #include <vector>
 using std::vector;
 
 class Options {
-public:
-    Options(const vector<char>& options);
+ public:
+    explicit Options(const vector<char>& options);
     bool CountingBytes() const;
     bool CountingLines() const;
     bool CountingWords() const;
     bool CountingChars() const;
 
-private:
+ private:
     bool counting_bytes_;
     bool counting_lines_;
     bool counting_words_;
@@ -24,4 +24,4 @@ private:
 };
 
 
-#endif //MY_WC_OPTIONS_H
+#endif  // OPTIONS_H_

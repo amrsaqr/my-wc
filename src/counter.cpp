@@ -1,5 +1,5 @@
 //
-// Created by Amr Saqr on 31/07/2024.
+// Copyright 2024 Amr Saqr
 //
 
 #include "counter.h"

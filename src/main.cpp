@@ -1,12 +1,12 @@
 //
-// Created by Amr Saqr on 30/07/2024.
+// Copyright 2024 Amr Saqr
 //
 
-#include "args_reader.h"
-#include "options.h"
-#include "counter.h"
 #include <iostream>
 #include <iomanip>
+#include "./args_reader.h"
+#include "./options.h"
+#include "./counter.h"
 using std::cout;
 using std::endl;
 using std::setw;
@@ -29,8 +29,7 @@ int main(int argc, char** argv) {
             Counter counter(options, file_path);
             if (counter.Count()) {
                 counter.Print();
-            }
-            else {
+            } else {
                 file_path_failed = true;
             }
         }
