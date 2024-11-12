@@ -52,22 +52,24 @@ bool Counter::Count() {
             bytes_count_ += line.size();
         }
 
-        // Convert to a wide string to be able to identify wide characters
-        if (options_.CountingWords() || options_.CountingChars()) {
-            wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
-            wstring wline = convert.from_bytes(line);
-
-            if (options_.CountingChars()) {
-                chars_count_ += wline.size();
-            }
-
-            if (options_.CountingWords()) {
-                for (int i = 0; i < wline.size(); ++i) {
-                    if (!iswspace(wline[i]) && (!i || iswspace(wline[i - 1]))) {
-                        ++words_count_;
-                    }
+        /*
+         * Count the words in the line.
+         * When we encounter a non-whitespace character that is either the very first character in the line
+         * or preceded by a whitespace character, we increase the words count.
+         */
+        if (options_.CountingWords()) {
+            for (int i = 0; i < line.size(); ++i) {
+                if (!isspace(line[i]) && (!i || isspace(line[i - 1]))) {
+                    ++words_count_;
                 }
             }
+        }
+
+        // Convert to a wide string to be able to identify wide characters
+        if (options_.CountingChars()) {
+            wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
+            wstring wline = convert.from_bytes(line);
+            chars_count_ += wline.size();
         }
 
         // Increase the bytes count, chars count, and lines count for the newline character
