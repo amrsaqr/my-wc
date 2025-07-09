@@ -5,24 +5,24 @@
 #ifndef ARGS_READER_H_
 #define ARGS_READER_H_
 
-#include <vector>
 #include <string>
-using std::vector;
+#include <vector>
 using std::string;
+using std::vector;
 
 class ArgsReader {
  public:
-    ArgsReader() = default;
+  ArgsReader() = default;
 
-    void Read(int argc, char** argv);
+  void Read(int argc, char** argv);
 
-    vector<char> GetOptions();
+  vector<char> GetOptions();
 
-    vector<string> GetFilesPaths();
+  vector<string> GetFilesPaths();
+
  private:
-    vector<char> options_;
-    vector<string> files_paths_;
+  vector<char> options_;
+  vector<string> files_paths_;
 };
-
 
 #endif  // ARGS_READER_H_
