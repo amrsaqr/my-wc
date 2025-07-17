@@ -4,121 +4,105 @@
 
 #include "counter.h"
 
-#include <codecvt>
-#include <cwctype>
 #include <fstream>
-#include <iomanip>
 #include <iostream>
 #include <istream>
-#include <locale>
+#include <sstream>
 #include <string>
-#include <utility>
-using std::cerr;
 using std::cin;
-using std::codecvt_utf8;
-using std::cout;
-using std::endl;
-using std::getline;
 using std::ifstream;
 using std::istream;
-using std::setw;
-using std::wstring;
-using std::wstring_convert;
+using std::ostringstream;
+using std::streamsize;
 
-Counter::Counter(const Options& options) : options_(options) {
-  reading_from_file_ = false;
+Counter::Counter(const Options& options) : options_(options) {}
+
+bool Counter::Count(Counts* counts, string* error_output) {
+  return Count(cin, counts, error_output);
 }
 
-Counter::Counter(const Options& options, string file_path)
-    : options_(options), file_path_(std::move(file_path)) {
-  reading_from_file_ = true;
-}
-
-bool Counter::Count() {
-  istream* in;
-  if (reading_from_file_) {
-    in = new ifstream(file_path_, std::ios::in);
-
-    if (in->fail()) {
-      cerr << file_path_ << ": Error opening file" << endl;
-      delete in;
-      return false;
-    }
-  } else {
-    in = &cin;
+bool Counter::Count(const string& file_path, Counts* counts,
+                    string* error_output) {
+  ifstream file(file_path, std::ios::in);
+  if (!file.is_open()) {
+    *error_output = "No such file or directory";
+    return false;
   }
 
-  string line;
-  while (getline(*in, line)) {
-    // Count the bytes in the narrow (ASCII or UTF-8 like) string
-    if (options_.CountingBytes()) {
-      bytes_count_ += line.size();
-    }
+  file.exceptions(std::ios::badbit);
+  return Count(file, counts, error_output);
+}
 
-    /*
-     * Count the words in the line.
-     * When we encounter a non-whitespace character that is either the very
-     * first character in the line or preceded by a whitespace character, we
-     * increase the words count.
-     */
-    if (options_.CountingWords()) {
-      for (int i = 0; i < line.size(); ++i) {
-        if (!isspace(line[i]) && (!i || isspace(line[i - 1]))) {
-          ++words_count_;
+bool Counter::Count(istream& in, Counts* counts, string* error_output) {
+  try {
+    mbstate_t mbstate = mbstate_t();
+    bool last_char_is_space = true;  // assuming a space before reading any
+                                     // bytes to assist with counting words
+    unsigned int left_over_bytes = 0;
+
+    while (true) {
+      in.read(buffer_ + left_over_bytes, kBufferSize - left_over_bytes);
+      streamsize read_bytes = in.gcount();
+      buffer_[left_over_bytes + read_bytes] = '\0';
+
+      if (read_bytes == 0) {
+        break;
+      }
+
+      if (options_.CountingBytes()) {
+        counts->IncBytes(read_bytes);
+      }
+
+      if (options_.CountingWords() || options_.CountingLines()) {
+        const char* buffer_end_ptr = buffer_ + left_over_bytes + read_bytes;
+        for (const char* buffer_ptr = buffer_ + left_over_bytes;
+             buffer_ptr < buffer_end_ptr; ++buffer_ptr) {
+          if (*buffer_ptr == '\n') {
+            counts->IncLines();
+          }
+
+          if (last_char_is_space && !isspace(*buffer_ptr)) {
+            counts->IncWords();
+            last_char_is_space = false;
+          } else if (!last_char_is_space && isspace(*buffer_ptr)) {
+            last_char_is_space = true;
+          }
+        }
+      }
+
+      if (options_.CountingChars()) {
+        const char* buffer_ptr = buffer_ + left_over_bytes;
+        const char* buffer_end_ptr = buffer_ + left_over_bytes + read_bytes;
+        int converted_bytes = 0;
+        wchar_t wc;
+
+        // try adding the condition of buffer_ptr < buffer_end_ptr
+        while (buffer_ptr < buffer_end_ptr &&
+               (converted_bytes = mbrtowc(
+                    &wc, buffer_ptr, buffer_end_ptr - buffer_ptr, &mbstate)) >
+                   0) {
+          counts->IncChars();
+          buffer_ptr += converted_bytes;
+        }
+
+        if (buffer_ptr == buffer_end_ptr) {
+          left_over_bytes = 0;
+        } else if (converted_bytes == -1) {
+          *error_output = "Encountered invalid character";
+          return false;
+        } else if (converted_bytes == -2) {
+          left_over_bytes = buffer_end_ptr - buffer_ptr;
+          memcpy(buffer_, buffer_ + (kBufferSize - left_over_bytes),
+                 left_over_bytes);
         }
       }
     }
 
-    // Convert to a wide string to be able to identify wide characters
-    if (options_.CountingChars()) {
-      wstring_convert<codecvt_utf8<wchar_t>, wchar_t> convert;
-      wstring wline = convert.from_bytes(line);
-      chars_count_ += wline.size();
-    }
-
-    // Increase the bytes count, chars count, and lines count for the newline
-    // character
-    if (options_.CountingBytes()) {
-      ++bytes_count_;
-    }
-
-    if (options_.CountingChars()) {
-      ++chars_count_;
-    }
-
-    if (options_.CountingLines()) {
-      ++lines_count_;
-    }
+    return true;
+  } catch (const std::ios_base::failure& e) {
+    ostringstream oss;
+    oss << "Error reading file (" << e.what() << ')';
+    *error_output = oss.str();
+    return false;
   }
-
-  if (reading_from_file_) {
-    dynamic_cast<ifstream*>(in)->close();
-    delete in;
-  }
-
-  return true;
-}
-
-void Counter::Print() const {
-  if (options_.CountingLines()) {
-    cout << setw(8) << lines_count_;
-  }
-
-  if (options_.CountingWords()) {
-    cout << setw(8) << words_count_;
-  }
-
-  if (options_.CountingChars()) {
-    cout << setw(8) << chars_count_;
-  }
-
-  if (options_.CountingBytes()) {
-    cout << setw(8) << bytes_count_;
-  }
-
-  if (reading_from_file_) {
-    cout << ' ' << file_path_;
-  }
-
-  cout << endl;
 }

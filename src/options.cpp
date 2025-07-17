@@ -4,7 +4,10 @@
 
 #include "options.h"
 
+#include <string>
 #include <vector>
+
+using std::string;
 
 Options::Options(const vector<char> &options) {
   if (options.empty()) {
@@ -20,6 +23,9 @@ Options::Options(const vector<char> &options) {
   counting_words_ = false;
   counting_chars_ = false;
 
+  // Reading options in order
+  // option 'c' overwrites any previous 'm'
+  // option 'm' overwrites any previous 'c'
   for (char option : options) {
     if (option == 'c') {
       counting_bytes_ = true;
@@ -31,6 +37,20 @@ Options::Options(const vector<char> &options) {
     } else if (option == 'm') {
       counting_chars_ = true;
       counting_bytes_ = false;
+    }
+  }
+
+  // If 'm' is the prevalent option from the previous loop, we need to do one
+  // extra check for the user-defined locale and see if it actually supports
+  // multibyte characters, if not make 'c' the prevalent option
+  if (counting_chars_) {
+    string current_locale(setlocale(LC_CTYPE, ""));
+    if (current_locale.find("UTF-8") == string::npos &&
+        current_locale.find("EUC-JP") == string::npos &&
+        current_locale.find("GBK") == string::npos &&
+        current_locale.find("Big5") == string::npos) {
+      counting_bytes_ = true;
+      counting_chars_ = false;
     }
   }
 }

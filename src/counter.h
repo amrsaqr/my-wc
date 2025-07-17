@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "counts.h"
 #include "options.h"
 
 using std::string;
@@ -17,23 +18,31 @@ class Counter {
  public:
   explicit Counter(const Options& options);
 
-  Counter(const Options& options, string file_path);
+  /**
+   * For counting from standard stream
+   * @param counts an out param for the Counts object
+   * @param error_output an out param for the error (NULL if no error happened)
+   * @return true if counting was successful, and false otherwise (in case of a
+   * stream error)
+   */
+  bool Count(Counts* counts, string* error_output);
 
-  // Returns false if and only if reading_from_file_ is true and a failure
-  // happened while opening the file
-  bool Count();
-
-  void Print() const;
+  /**
+   * For counting from a file stream
+   * @param file_path the path to the file
+   * @param counts an out param for the Counts object
+   * @param error_output an out param for the error (NULL if no error happened)
+   * @return true if counting was successful, and false otherwise (in case of a
+   * stream error)
+   */
+  bool Count(const string& file_path, Counts* counts, string* error_output);
 
  private:
-  const Options options_;
-  const string file_path_;
+  bool Count(std::istream& in, Counts* counts, string* error_output);
 
-  bool reading_from_file_;
-  size_t bytes_count_{0};
-  size_t lines_count_{0};
-  size_t words_count_{0};
-  size_t chars_count_{0};
+  const Options options_;
+  static constexpr unsigned int kBufferSize = 64 * 1024;  // 64KB
+  char buffer_[kBufferSize + 1]{};
 };
 
 #endif  // COUNTER_H_

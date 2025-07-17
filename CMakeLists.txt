@@ -10,4 +10,6 @@ add_executable(my_wc
         src/counter.cpp
         src/counter.h
         src/options.cpp
-        src/options.h)
+        src/options.h
+        src/counts.cpp
+        src/counts.h)
