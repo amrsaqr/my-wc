@@ -42,7 +42,7 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
 
     while (true) {
       in.read(buffer_ + left_over_bytes, kBufferSize - left_over_bytes);
-      streamsize read_bytes = in.gcount();
+      const streamsize read_bytes = in.gcount();
       buffer_[left_over_bytes + read_bytes] = '\0';
 
       if (read_bytes == 0) {
@@ -54,44 +54,43 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
       }
 
       if (options_.CountingWords() || options_.CountingLines()) {
-        const char* buffer_end_ptr = buffer_ + left_over_bytes + read_bytes;
-        for (const char* buffer_ptr = buffer_ + left_over_bytes;
-             buffer_ptr < buffer_end_ptr; ++buffer_ptr) {
-          if (*buffer_ptr == '\n') {
+        const char* begin_ptr = buffer_ + left_over_bytes;
+        const char* end_ptr = begin_ptr + read_bytes;
+
+        for (; begin_ptr < end_ptr; ++begin_ptr) {
+          if (*begin_ptr == '\n') {
             counts->IncLines();
           }
 
-          if (last_char_is_space && !isspace(*buffer_ptr)) {
+          if (last_char_is_space && !isspace(*begin_ptr)) {
             counts->IncWords();
             last_char_is_space = false;
-          } else if (!last_char_is_space && isspace(*buffer_ptr)) {
+          } else if (!last_char_is_space && isspace(*begin_ptr)) {
             last_char_is_space = true;
           }
         }
       }
 
       if (options_.CountingChars()) {
-        const char* buffer_ptr = buffer_ + left_over_bytes;
-        const char* buffer_end_ptr = buffer_ + left_over_bytes + read_bytes;
-        int converted_bytes = 0;
-        wchar_t wc;
+        const char* begin_ptr = buffer_ + left_over_bytes;
+        const char* end_ptr = begin_ptr + read_bytes;
+        size_t converted_bytes = 0;
 
         // try adding the condition of buffer_ptr < buffer_end_ptr
-        while (buffer_ptr < buffer_end_ptr &&
-               (converted_bytes = mbrtowc(
-                    &wc, buffer_ptr, buffer_end_ptr - buffer_ptr, &mbstate)) >
-                   0) {
+        while (begin_ptr < end_ptr &&
+               (converted_bytes = mbrtowc(nullptr, begin_ptr,
+                                          end_ptr - begin_ptr, &mbstate)) > 0) {
           counts->IncChars();
-          buffer_ptr += converted_bytes;
+          begin_ptr += converted_bytes;
         }
 
-        if (buffer_ptr == buffer_end_ptr) {
+        if (begin_ptr == end_ptr) {
           left_over_bytes = 0;
         } else if (converted_bytes == -1) {
           *error_output = "Encountered invalid character";
           return false;
         } else if (converted_bytes == -2) {
-          left_over_bytes = buffer_end_ptr - buffer_ptr;
+          left_over_bytes = end_ptr - begin_ptr;
           memcpy(buffer_, buffer_ + (kBufferSize - left_over_bytes),
                  left_over_bytes);
         }

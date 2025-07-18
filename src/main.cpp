@@ -54,6 +54,8 @@ int main(int argc, char** argv) {
 
     if (counter.Count(&counts, &error_output)) {
       Print(options, counts);
+    } else {
+      cout << error_output << endl;
     }
   } else {
     Counts total_counts;
@@ -66,12 +68,14 @@ int main(int argc, char** argv) {
         Print(options, counts, &file_path);
         total_counts += counts;
       } else {
+        cout << file_path << ": " << error_output << endl;
         file_path_failed = true;
       }
     }
 
     if (files_paths.size() > 1) {
-      Print(options, total_counts);
+      string total_as_file_path = "total";
+      Print(options, total_counts, &total_as_file_path);
     }
   }
 
