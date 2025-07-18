@@ -13,8 +13,14 @@ using std::cout;
 using std::endl;
 using std::setw;
 
-
-void Print(const Options& options, const Counts& counts, const string* file_path = nullptr) {
+/**
+ * Print counts depending on program options
+ * @param options The arguments passed to the program
+ * @param counts The counts based on options
+ * @param file_path An optional file path for which the counts have been done
+ */
+void Print(const Options& options, const Counts& counts,
+           const string* file_path = nullptr) {
   if (options.CountingLines()) {
     cout << setw(8) << counts.GetLines();
   }
@@ -39,15 +45,19 @@ void Print(const Options& options, const Counts& counts, const string* file_path
 }
 
 int main(int argc, char** argv) {
+  // Extract the program arguments
   ArgsReader args_reader;
   args_reader.Read(argc, argv);
 
+  // Build the counting options using the arguments
   Options options(args_reader.GetOptions());
   auto files_paths = args_reader.GetFilesPaths();
 
+  // Build a counter object using the options
   Counter counter(options);
   bool file_path_failed = false;
 
+  // If no files were passed to the program, then we count from standard input
   if (files_paths.empty()) {
     Counts counts;
     string error_output;
@@ -57,14 +67,14 @@ int main(int argc, char** argv) {
     } else {
       cout << error_output << endl;
     }
-  } else {
+  } else {  // Files paths were passed to the program, so we count for each file
     Counts total_counts;
+
     for (const string& file_path : files_paths) {
       Counts counts;
       string error_output;
 
       if (counter.Count(file_path, &counts, &error_output)) {
-        // print, and sum in totals
         Print(options, counts, &file_path);
         total_counts += counts;
       } else {
@@ -73,8 +83,9 @@ int main(int argc, char** argv) {
       }
     }
 
+    // Only print a total line if files are more than 1
     if (files_paths.size() > 1) {
-      string total_as_file_path = "total";
+      const string total_as_file_path = "total";
       Print(options, total_counts, &total_as_file_path);
     }
   }
