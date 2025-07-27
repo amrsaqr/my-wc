@@ -55,40 +55,53 @@ int main(int argc, char** argv) {
 
   // Build a counter object using the options
   Counter counter(options);
-  bool file_path_failed = false;
+  bool all_counting_successful = true;
 
   // If no files were passed to the program, then we count from standard input
   if (files_paths.empty()) {
     Counts counts;
     string error_output;
 
-    if (counter.Count(&counts, &error_output)) {
-      Print(options, counts);
-    } else {
+    bool counting_successful = counter.Count(&counts, &error_output);
+
+    if (!error_output.empty()) {
       cout << error_output << endl;
     }
+
+    if (counting_successful) {
+      Print(options, counts);
+    }
+
+    all_counting_successful = counting_successful;
   } else {  // Files paths were passed to the program, so we count for each file
     Counts total_counts;
+    size_t successful_counts = 0;
 
     for (const string& file_path : files_paths) {
       Counts counts;
       string error_output;
 
-      if (counter.Count(file_path, &counts, &error_output)) {
+      bool counting_successful = counter.Count(file_path, &counts, &error_output);
+
+      if (!error_output.empty()) {
+        cout << file_path << ": " << error_output << endl;
+      }
+
+      if (counting_successful) {
         Print(options, counts, &file_path);
         total_counts += counts;
-      } else {
-        cout << file_path << ": " << error_output << endl;
-        file_path_failed = true;
+        ++successful_counts;
       }
+
+      all_counting_successful &= counting_successful;
     }
 
-    // Only print a total line if files are more than 1
-    if (files_paths.size() > 1) {
+    // Only print a total line if successful file counts are more than 1
+    if (successful_counts > 1) {
       const string total_as_file_path = "total";
       Print(options, total_counts, &total_as_file_path);
     }
   }
 
-  return file_path_failed ? 1 : 0;
+  return all_counting_successful ? 0 : 1;
 }

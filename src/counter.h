@@ -49,12 +49,17 @@ class Counter {
   bool Count(std::istream& in, Counts* counts, string* error_output);
 
   const Options options_;
+
   // Use 64KB read chunks to improve the performance of reading from input
   // streams
   static constexpr unsigned int kBufferSize = 64 * 1024;
+
   // The buffer for reading from input streams, of size kBufferSize plus one
   // more for null-termination
   char buffer_[kBufferSize + 1]{};
+
+  // Whether the user-defined locale supports multibyte characters
+  bool is_multibyte_locale_;
 };
 
 #endif  // COUNTER_H_
