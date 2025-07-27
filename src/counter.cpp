@@ -139,18 +139,7 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
           continue;
         }
 
-        if (options_.CountingLines() && wide_char == L'\n') {
-          counts->IncLines();
-        }
-
-        if (options_.CountingWords()) {
-          if (last_char_is_space && !iswspace(wide_char)) {
-            counts->IncWords();
-            last_char_is_space = false;
-          } else if (!last_char_is_space && iswspace(wide_char)) {
-            last_char_is_space = true;
-          }
-        }
+        HandleLinesAndWords(wide_char, last_char_is_space, counts);
 
         counts->IncChars();
       }
@@ -159,18 +148,7 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
       if (options_.CountingWords() || options_.CountingLines()) {
         for (const char *begin_ptr = buffer_, *end_ptr = buffer_ + read_bytes;
              begin_ptr < end_ptr; ++begin_ptr) {
-          if (options_.CountingLines() && *begin_ptr == '\n') {
-            counts->IncLines();
-          }
-
-          if (options_.CountingWords()) {
-            if (last_char_is_space && !isspace(*begin_ptr)) {
-              counts->IncWords();
-              last_char_is_space = false;
-            } else if (!last_char_is_space && isspace(*begin_ptr)) {
-              last_char_is_space = true;
-            }
-          }
+          HandleLinesAndWords(*begin_ptr, last_char_is_space, counts);
         }
       }
 
@@ -189,4 +167,19 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
   }
 
   return true;
+}
+
+void Counter::HandleLinesAndWords(const wchar_t wide_char, bool& last_char_is_space, Counts* counts) {
+  if (options_.CountingLines() && wide_char == L'\n') {
+    counts->IncLines();
+  }
+
+  if (options_.CountingWords()) {
+    if (last_char_is_space && !iswspace(wide_char)) {
+      counts->IncWords();
+      last_char_is_space = false;
+    } else if (!last_char_is_space && iswspace(wide_char)) {
+      last_char_is_space = true;
+    }
+  }
 }

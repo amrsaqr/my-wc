@@ -48,6 +48,17 @@ class Counter {
    */
   bool Count(std::istream& in, Counts* counts, string* error_output);
 
+  /**
+   * A helper function that handles incrementing the lines and words count
+   * @param wide_char the wide character to check against
+   * @param last_char_is_space an in/out param that says whether the character
+   * just before "wide_char" was a white-space character or not, and should be
+   * updated depending on wide_char
+   * @param counts an out param for the Counts object
+   */
+  void HandleLinesAndWords(wchar_t wide_char, bool& last_char_is_space,
+                           Counts* counts);
+
   const Options options_;
 
   // Use 64KB read chunks to improve the performance of reading from input
