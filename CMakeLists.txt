@@ -20,7 +20,7 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_executable(my_wc_test test/test_args_reader.cpp)
+add_executable(my_wc_test test/args_reader_test.cpp)
 target_link_libraries(my_wc_test PRIVATE my_wc_lib GTest::gtest_main)
 
 include(GoogleTest)
