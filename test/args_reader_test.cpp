@@ -1,12 +1,13 @@
 //
 // Copyright 2025 Amr Saqr
 //
+
 #include <gtest/gtest.h>
 #include <string>
 #include <vector>
 #include "args_reader.h"
 
-TEST(ArgsReaderTest, NoOptionsNoFiles) {
+TEST(ArgsReaderTest, TestsNoOptionsNoFiles) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char* argv[] = {arg0};
@@ -19,7 +20,7 @@ TEST(ArgsReaderTest, NoOptionsNoFiles) {
   EXPECT_EQ(files_paths.size(), 0);
 }
 
-TEST(ArgsReaderTest, OneOptionNoFiles) {
+TEST(ArgsReaderTest, TestsOneOptionNoFiles) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char arg1[] = "-c";
@@ -34,7 +35,7 @@ TEST(ArgsReaderTest, OneOptionNoFiles) {
   EXPECT_EQ(files_paths.size(), 0);
 }
 
-TEST(ArgsReaderTest, MultiOptionsNoFiles) {
+TEST(ArgsReaderTest, TestsMultiOptionsNoFiles) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char arg1[] = "-c";
@@ -52,7 +53,7 @@ TEST(ArgsReaderTest, MultiOptionsNoFiles) {
   EXPECT_EQ(options[2], 'w');
 }
 
-TEST(ArgsReaderTest, MultiOptionsGroupedNoFiles) {
+TEST(ArgsReaderTest, TestsMultiOptionsGroupedNoFiles) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char arg1[] = "-clw";
@@ -68,7 +69,7 @@ TEST(ArgsReaderTest, MultiOptionsGroupedNoFiles) {
   EXPECT_EQ(options[2], 'w');
 }
 
-TEST(ArgsReaderTest, NoOptionsOneFile) {
+TEST(ArgsReaderTest, TestsNoOptionsOneFile) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char arg1[] = "file.txt";
@@ -83,7 +84,7 @@ TEST(ArgsReaderTest, NoOptionsOneFile) {
   EXPECT_EQ(files_paths[0], "file.txt");
 }
 
-TEST(ArgsReaderTest, NoOptionsMultiFiles) {
+TEST(ArgsReaderTest, TestsNoOptionsMultiFiles) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char arg1[] = "file1.txt";
@@ -100,7 +101,7 @@ TEST(ArgsReaderTest, NoOptionsMultiFiles) {
   EXPECT_EQ(files_paths[1], "file2.txt");
 }
 
-TEST(ArgsReaderTest, MultiOptionsMultiFiles) {
+TEST(ArgsReaderTest, TestsMultiOptionsMultiFiles) {
   ArgsReader args_reader;
   char arg0[] = "my_wc";
   char arg1[] = "-m";
