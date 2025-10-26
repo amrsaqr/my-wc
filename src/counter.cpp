@@ -23,16 +23,12 @@ using std::streamsize;
 using std::unique_ptr;
 
 Counter::Counter(const Options& options) : options_(options) {
-  // TODO(amrsaqr): add a try catch here and improve multibyte checking.
   // Check the user-defined locale for multibyte characters support
-  string current_locale(setlocale(LC_CTYPE, ""));
-  if (current_locale.find("UTF-8") != string::npos ||
-      current_locale.find("eucjp") != string::npos ||
-      current_locale.find("GBK") != string::npos ||
-      current_locale.find("Big5") != string::npos) {
-    is_multibyte_locale_ = true;
-  } else {
+  if (!setlocale(LC_CTYPE, "")) {
+    cerr << "Warning: Could not get user-defined locale. Assuming no multibyte characters support." << endl;
     is_multibyte_locale_ = false;
+  } else {
+    is_multibyte_locale_ = (MB_CUR_MAX > 1);
   }
 }
 
