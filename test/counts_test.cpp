@@ -7,7 +7,10 @@
 
 class CountsTest : public testing::Test {
  protected:
-  void AssertCounts(const unsigned int bytes, const unsigned int lines, const unsigned int words, const unsigned int chars) {
+  void AssertCounts(const unsigned int bytes,
+    const unsigned int lines,
+    const unsigned int words,
+    const unsigned int chars) {
     ASSERT_EQ(bytes, counts_.GetBytes());
     ASSERT_EQ(lines, counts_.GetLines());
     ASSERT_EQ(words, counts_.GetWords());
