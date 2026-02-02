@@ -19,7 +19,7 @@ class Counter {
   explicit Counter(const Options& options);
 
   /**
-   * For counting from standard stream
+   * For counting from a standard stream
    * @param counts an out param for the Counts object
    * @param error_output an out param for the error (NULL if no error happened)
    * @return true if counting was successful, and false otherwise (in case of a
