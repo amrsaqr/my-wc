@@ -5,46 +5,50 @@
 #include <gtest/gtest.h>
 #include "counts.h"
 
-TEST(CountsTest, TestsIncBytes) {
-  Counts counts;
-  ASSERT_EQ(counts.GetBytes(), 0);
+class CountsTest : public testing::Test {
+ protected:
+  void AssertCounts(const unsigned int bytes, const unsigned int lines, const unsigned int words, const unsigned int chars) {
+    ASSERT_EQ(bytes, counts_.GetBytes());
+    ASSERT_EQ(lines, counts_.GetLines());
+    ASSERT_EQ(words, counts_.GetWords());
+    ASSERT_EQ(chars, counts_.GetChars());
+  }
 
-  counts.IncBytes();
-  ASSERT_EQ(counts.GetBytes(), 1);
+  Counts counts_;
+};
 
-  counts.IncBytes(9);
-  ASSERT_EQ(counts.GetBytes(), 10);
+TEST_F(CountsTest, TestsAllZeroesInitially) {
+  AssertCounts(0, 0, 0, 0);
 }
 
-TEST(CountsTest, TestsIncLines) {
-  Counts counts;
-  ASSERT_EQ(counts.GetLines(), 0);
+TEST_F(CountsTest, TestsIncBytes) {
+  counts_.IncBytes();
+  AssertCounts(1, 0, 0, 0);
 
-  counts.IncLines();
-  ASSERT_EQ(counts.GetLines(), 1);
-
-  counts.IncLines(9);
-  ASSERT_EQ(counts.GetLines(), 10);
+  counts_.IncBytes(9);
+  AssertCounts(10, 0, 0, 0);
 }
 
-TEST(CountsTest, TestsIncWords) {
-  Counts counts;
-  ASSERT_EQ(counts.GetWords(), 0);
+TEST_F(CountsTest, TestsIncLines) {
+  counts_.IncLines();
+  AssertCounts(0, 1, 0, 0);
 
-  counts.IncWords();
-  ASSERT_EQ(counts.GetWords(), 1);
-
-  counts.IncWords(9);
-  ASSERT_EQ(counts.GetWords(), 10);
+  counts_.IncLines(9);
+  AssertCounts(0, 10, 0, 0);
 }
 
-TEST(CountsTest, TestsIncChars) {
-  Counts counts;
-  ASSERT_EQ(counts.GetChars(), 0);
+TEST_F(CountsTest, TestsIncWords) {
+  counts_.IncWords();
+  AssertCounts(0, 0, 1, 0);
 
-  counts.IncChars();
-  ASSERT_EQ(counts.GetChars(), 1);
+  counts_.IncWords(9);
+  AssertCounts(0, 0, 10, 0);
+}
 
-  counts.IncChars(9);
-  ASSERT_EQ(counts.GetChars(), 10);
+TEST_F(CountsTest, TestsIncChars) {
+  counts_.IncChars();
+  AssertCounts(0, 0, 0, 1);
+
+  counts_.IncChars(9);
+  AssertCounts(0, 0, 0, 10);
 }
