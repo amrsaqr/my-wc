@@ -2,11 +2,14 @@
 // Copyright 2025 Amr Saqr
 //
 
+#include "args_reader.h"
+
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
+
+#include <initializer_list>
 #include <string>
 #include <vector>
-#include <initializer_list>
-#include "args_reader.h"
 
 using std::initializer_list;
 
@@ -50,9 +53,7 @@ TEST_F(ArgsReaderTest, TestsMultiOptionsNoFiles) {
   InitArgsReader({"-c", "-l", "-w"});
 
   ASSERT_EQ(options_.size(), 3);
-  EXPECT_EQ(options_[0], 'c');
-  EXPECT_EQ(options_[1], 'l');
-  EXPECT_EQ(options_[2], 'w');
+  EXPECT_THAT(options_, testing::ElementsAre('c', 'l', 'w'));
 
   EXPECT_EQ(files_paths_.size(), 0);
 }
@@ -61,9 +62,7 @@ TEST_F(ArgsReaderTest, TestsMultiOptionsGroupedNoFiles) {
   InitArgsReader({"-clw"});
 
   ASSERT_EQ(options_.size(), 3);
-  EXPECT_EQ(options_[0], 'c');
-  EXPECT_EQ(options_[1], 'l');
-  EXPECT_EQ(options_[2], 'w');
+  EXPECT_THAT(options_, testing::ElementsAre('c', 'l', 'w'));
 
   EXPECT_EQ(files_paths_.size(), 0);
 }
@@ -83,21 +82,17 @@ TEST_F(ArgsReaderTest, TestsNoOptionsMultiFiles) {
   EXPECT_EQ(options_.size(), 0);
 
   ASSERT_EQ(files_paths_.size(), 2);
-  EXPECT_EQ(files_paths_[0], "file1.txt");
-  EXPECT_EQ(files_paths_[1], "file2.txt");
+  EXPECT_THAT(files_paths_, testing::ElementsAre("file1.txt", "file2.txt"));
 }
 
 TEST_F(ArgsReaderTest, TestsMultiOptionsMultiFiles) {
   InitArgsReader({"-m", "-lw", "file1.txt", "file2.txt"});
 
   ASSERT_EQ(options_.size(), 3);
-  EXPECT_EQ(options_[0], 'm');
-  EXPECT_EQ(options_[1], 'l');
-  EXPECT_EQ(options_[2], 'w');
+  EXPECT_THAT(options_, testing::ElementsAre('m', 'l', 'w'));
 
   ASSERT_EQ(files_paths_.size(), 2);
-  EXPECT_EQ(files_paths_[0], "file1.txt");
-  EXPECT_EQ(files_paths_[1], "file2.txt");
+  EXPECT_THAT(files_paths_, testing::ElementsAre("file1.txt", "file2.txt"));
 }
 
 TEST_F(ArgsReaderTest, TestsOptionsIgnoredAfterFilesPathsStart) {
@@ -107,6 +102,5 @@ TEST_F(ArgsReaderTest, TestsOptionsIgnoredAfterFilesPathsStart) {
   EXPECT_EQ(options_[0], 'l');
 
   ASSERT_EQ(files_paths_.size(), 2);
-  EXPECT_EQ(files_paths_[0], "file.txt");
-  EXPECT_EQ(files_paths_[1], "-m");
+  EXPECT_THAT(files_paths_, testing::ElementsAre("file.txt", "-m"));
 }
