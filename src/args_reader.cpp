@@ -7,10 +7,10 @@
 #include <string>
 #include <vector>
 
-void ArgsReader::Read(int argc, char** argv) {
+void ArgsReader::Read(int argc, const char* const* argv) {
   // First read options until done, or you hit a potential file path (argument
   // that doesn't start with a '-')
-  int i = 1;
+  int i = 0;
   for (; i < argc && argv[i][0] == '-'; ++i) {
     for (int j = 1; argv[i][j]; ++j) {
       options_.emplace_back(argv[i][j]);
@@ -24,6 +24,6 @@ void ArgsReader::Read(int argc, char** argv) {
   }
 }
 
-vector<char> ArgsReader::GetOptions() { return options_; }
+const vector<char>& ArgsReader::GetOptions() const { return options_; }
 
-vector<string> ArgsReader::GetFilesPaths() { return files_paths_; }
+const vector<string>& ArgsReader::GetFilesPaths() const { return files_paths_; }

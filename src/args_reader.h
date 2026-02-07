@@ -14,11 +14,11 @@ class ArgsReader {
  public:
   ArgsReader() = default;
 
-  void Read(int argc, char** argv);
+  void Read(int argc, const char* const* argv);
 
-  vector<char> GetOptions();
+  [[nodiscard]] const vector<char>& GetOptions() const;
 
-  vector<string> GetFilesPaths();
+  [[nodiscard]] const vector<string>& GetFilesPaths() const;
 
  private:
   vector<char> options_;

@@ -47,11 +47,11 @@ void Print(const Options& options, const Counts& counts,
 int main(int argc, char** argv) {
   // Extract the program arguments
   ArgsReader args_reader;
-  args_reader.Read(argc, argv);
+  args_reader.Read(argc - 1, argv + 1);
 
   // Build the counting options using the arguments
   Options options(args_reader.GetOptions());
-  auto files_paths = args_reader.GetFilesPaths();
+  auto& files_paths = args_reader.GetFilesPaths();
 
   // Build a counter object using the options
   Counter counter(options);
