@@ -7,47 +7,35 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 
 #include "counts.h"
 #include "options.h"
 
 using std::string;
 using std::vector;
+using std::unique_ptr;
 
 class Counter {
  public:
-  explicit Counter(const Options& options);
+  explicit Counter(unsigned int buffer_size = kBufferSize);
 
   /**
-   * For counting from a standard stream
+   * Given an input stream, options, it implements the counting algorithm
+   * @param in the input stream object (can be standard stream or file stream)
+   * @param options the program options for counting
+   * @param is_multibyte_locale whether the locale is multibyte or not
    * @param counts an out param for the Counts object
    * @param error_output an out param for the error (NULL if no error happened)
    * @return true if counting was successful, and false otherwise (in case of a
    * stream error)
    */
-  bool Count(Counts* counts, string* error_output);
+  bool Count(std::istream& in, const Options& options, bool is_multibyte_locale,
+    Counts* counts, string* error_output) const;
 
-  /**
-   * For counting from a file stream
-   * @param file_path the path to the file
-   * @param counts an out param for the Counts object
-   * @param error_output an out param for the error (NULL if no error happened)
-   * @return true if counting was successful, and false otherwise (in case of a
-   * stream error)
-   */
-  bool Count(const string& file_path, Counts* counts, string* error_output);
+  virtual ~Counter();
 
  private:
-  /**
-   * A helper function to implement the counting logic
-   * @param in the input stream object (can be standard stream or file stream)
-   * @param counts an out param for the Counts object
-   * @param error_output an out param for the error (NULL if no error happened)
-   * @return true if counting was successful, and false otherwise (in case of a
-   * stream error)
-   */
-  bool Count(std::istream& in, Counts* counts, string* error_output);
-
   /**
    * A helper function that handles incrementing the lines and words count
    * @param wide_char the wide character to check against
@@ -56,21 +44,15 @@ class Counter {
    * updated depending on wide_char
    * @param counts an out param for the Counts object
    */
-  void HandleLinesAndWords(wchar_t wide_char, bool& last_char_is_space,
-                           Counts* counts);
-
-  const Options options_;
+  static void HandleLinesAndWords(wchar_t wide_char, bool counting_lines,
+    bool counting_words, bool& last_char_is_space, Counts* counts);
 
   // Use 64KB read chunks to improve the performance of reading from input
   // streams
   static constexpr unsigned int kBufferSize = 64 * 1024;
 
-  // The buffer for reading from input streams, of size kBufferSize plus one
-  // more for null-termination
-  char buffer_[kBufferSize + 1]{};
-
-  // Whether the user-defined locale supports multibyte characters
-  bool is_multibyte_locale_;
+  // The buffer for reading from input streams
+  char* buffer_;
 };
 
 #endif  // COUNTER_H_

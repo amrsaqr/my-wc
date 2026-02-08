@@ -4,8 +4,6 @@
 
 #include "counter.h"
 
-#include <unistd.h>
-
 #include <fstream>
 #include <iostream>
 #include <istream>
@@ -21,46 +19,29 @@ using std::make_unique;
 using std::ostringstream;
 using std::streamsize;
 using std::unique_ptr;
+using std::ios;
 
-Counter::Counter(const Options& options) : options_(options) {
-  // Check the user-defined locale for multibyte characters support
-  if (!setlocale(LC_CTYPE, "")) {
-    cerr << "Warning: Could not get user-defined locale. Assuming no multibyte characters support." << endl;
-    is_multibyte_locale_ = false;
-  } else {
-    is_multibyte_locale_ = (MB_CUR_MAX > 1);
-  }
+Counter::Counter(const unsigned int buffer_size) {
+  buffer_ = new char[buffer_size + 1];
 }
 
-bool Counter::Count(Counts* counts, string* error_output) {
-  return Count(cin, counts, error_output);
-}
-
-bool Counter::Count(const string& file_path, Counts* counts,
-                    string* error_output) {
-  ifstream file(file_path, std::ios::in);
-  if (!file.is_open()) {
-    *error_output = "No such file or directory";
-    return false;
-  }
-
-  file.exceptions(std::ios::badbit);
-  return Count(file, counts, error_output);
-}
-
-bool Counter::Count(istream& in, Counts* counts, string* error_output) {
+bool Counter::Count(istream& in, const Options& options, bool is_multibyte_locale,
+  Counts* counts, string* error_output) const {
   // - A pointer to the conversion state object used for continuing the
   // conversion of a multibyte character across two different mbrtowc calls
   // - Only points to a state object if user-defined locale supports multibyte,
   // and we're counting characters
   unique_ptr<mbstate_t> mbstate =
-      is_multibyte_locale_ && options_.CountingChars() ? std::make_unique<mbstate_t>() : nullptr;
+      is_multibyte_locale && options.CountingChars() ? std::make_unique<mbstate_t>() : nullptr;
 
   // Assuming a space before reading any bytes to assist with counting words
   bool last_char_is_space = true;
 
   // A flag to be set when we encounter an invalid byte sequence
   bool invalid_byte_sequence_encountered = false;
+
+  // Make the input stream throw exceptions on bad bits
+  in.exceptions(ios::badbit);
 
   // A loop that read the entire input stream (standard or file) in byte chunks
   // of kBufferSize
@@ -89,12 +70,12 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
     buffer_[read_bytes] = '\0';
 
     // If we should count bytes, add the read bytes to the Counts object bytes
-    if (options_.CountingBytes()) {
+    if (options.CountingBytes()) {
       counts->IncBytes(read_bytes);
     }
 
     // This decides if we're going to iterate on bytes or wide characters
-    if (is_multibyte_locale_ && options_.CountingChars()) {
+    if (is_multibyte_locale && options.CountingChars()) {
       // The number of converted bytes in each mbrtowc call, to be used for
       // advancing the begin_ptr
       int converted_bytes = 0;
@@ -135,22 +116,22 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
           continue;
         }
 
-        HandleLinesAndWords(wide_char, last_char_is_space, counts);
+        HandleLinesAndWords(wide_char, options.CountingLines(), options.CountingWords(), last_char_is_space, counts);
 
         counts->IncChars();
       }
     } else {
       // Only iterate on the buffer if we should count words or lines
-      if (options_.CountingWords() || options_.CountingLines()) {
+      if (options.CountingWords() || options.CountingLines()) {
         for (const char *begin_ptr = buffer_, *end_ptr = buffer_ + read_bytes;
              begin_ptr < end_ptr; ++begin_ptr) {
-          HandleLinesAndWords(*begin_ptr, last_char_is_space, counts);
+          HandleLinesAndWords(*begin_ptr, options.CountingLines(), options.CountingWords(), last_char_is_space, counts);
         }
       }
 
       // If we should count characters, it should be the bytes count because
       // user-defined locale doesn't support multibyte
-      if (options_.CountingChars()) {
+      if (options.CountingChars()) {
         counts->IncChars(read_bytes);
       }
     }
@@ -165,12 +146,13 @@ bool Counter::Count(istream& in, Counts* counts, string* error_output) {
   return true;
 }
 
-void Counter::HandleLinesAndWords(const wchar_t wide_char, bool& last_char_is_space, Counts* counts) {
-  if (options_.CountingLines() && wide_char == L'\n') {
+void Counter::HandleLinesAndWords(const wchar_t wide_char, bool counting_lines,
+  bool counting_words, bool& last_char_is_space, Counts* counts) {
+  if (counting_lines && wide_char == L'\n') {
     counts->IncLines();
   }
 
-  if (options_.CountingWords()) {
+  if (counting_words) {
     if (last_char_is_space && !iswspace(wide_char)) {
       counts->IncWords();
       last_char_is_space = false;
@@ -178,4 +160,8 @@ void Counter::HandleLinesAndWords(const wchar_t wide_char, bool& last_char_is_sp
       last_char_is_space = true;
     }
   }
+}
+
+Counter::~Counter() {
+  delete[] buffer_;
 }
