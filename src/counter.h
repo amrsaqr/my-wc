@@ -21,7 +21,7 @@ class Counter {
   explicit Counter(unsigned int buffer_size = kBufferSize);
 
   /**
-   * Given an input stream, options, it implements the counting algorithm
+   * Given an input stream and options, it implements the counting algorithm
    * @param in the input stream object (can be standard stream or file stream)
    * @param options the program options for counting
    * @param is_multibyte_locale whether the locale is multibyte or not

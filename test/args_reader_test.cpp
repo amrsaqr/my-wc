@@ -15,25 +15,25 @@ using std::initializer_list;
 
 class ArgsReaderTest : public testing::Test {
  protected:
-  void InitArgsReader(initializer_list<const char*> args) {
+  void DoTestAndSetActualOutputs(initializer_list<const char*> args) {
     if (args.size() == 0) {
       return;
     }
 
     vector args_copy(args.begin(), args.end());
 
+    ArgsReader args_reader_;
     args_reader_.Read(static_cast<int>(args.size()), args_copy.data());
     options_ = args_reader_.GetOptions();
     files_paths_ = args_reader_.GetFilesPaths();
   }
 
-  ArgsReader args_reader_;
   vector<char> options_;
   vector<string> files_paths_;
 };
 
 TEST_F(ArgsReaderTest, TestsNoOptionsNoFiles) {
-  InitArgsReader({});
+  DoTestAndSetActualOutputs({});
 
   EXPECT_EQ(options_.size(), 0);
 
@@ -41,7 +41,7 @@ TEST_F(ArgsReaderTest, TestsNoOptionsNoFiles) {
 }
 
 TEST_F(ArgsReaderTest, TestsOneOptionNoFiles) {
-  InitArgsReader({"-c"});
+  DoTestAndSetActualOutputs({"-c"});
 
   ASSERT_EQ(options_.size(), 1);
   EXPECT_EQ(options_[0], 'c');
@@ -50,7 +50,7 @@ TEST_F(ArgsReaderTest, TestsOneOptionNoFiles) {
 }
 
 TEST_F(ArgsReaderTest, TestsMultiOptionsNoFiles) {
-  InitArgsReader({"-c", "-l", "-w"});
+  DoTestAndSetActualOutputs({"-c", "-l", "-w"});
 
   ASSERT_EQ(options_.size(), 3);
   EXPECT_THAT(options_, testing::ElementsAre('c', 'l', 'w'));
@@ -59,7 +59,7 @@ TEST_F(ArgsReaderTest, TestsMultiOptionsNoFiles) {
 }
 
 TEST_F(ArgsReaderTest, TestsMultiOptionsGroupedNoFiles) {
-  InitArgsReader({"-clw"});
+  DoTestAndSetActualOutputs({"-clw"});
 
   ASSERT_EQ(options_.size(), 3);
   EXPECT_THAT(options_, testing::ElementsAre('c', 'l', 'w'));
@@ -68,7 +68,7 @@ TEST_F(ArgsReaderTest, TestsMultiOptionsGroupedNoFiles) {
 }
 
 TEST_F(ArgsReaderTest, TestsNoOptionsOneFile) {
-  InitArgsReader({"file.txt"});
+  DoTestAndSetActualOutputs({"file.txt"});
 
   EXPECT_EQ(options_.size(), 0);
 
@@ -77,7 +77,7 @@ TEST_F(ArgsReaderTest, TestsNoOptionsOneFile) {
 }
 
 TEST_F(ArgsReaderTest, TestsNoOptionsMultiFiles) {
-  InitArgsReader({"file1.txt", "file2.txt"});
+  DoTestAndSetActualOutputs({"file1.txt", "file2.txt"});
 
   EXPECT_EQ(options_.size(), 0);
 
@@ -86,7 +86,7 @@ TEST_F(ArgsReaderTest, TestsNoOptionsMultiFiles) {
 }
 
 TEST_F(ArgsReaderTest, TestsMultiOptionsMultiFiles) {
-  InitArgsReader({"-m", "-lw", "file1.txt", "file2.txt"});
+  DoTestAndSetActualOutputs({"-m", "-lw", "file1.txt", "file2.txt"});
 
   ASSERT_EQ(options_.size(), 3);
   EXPECT_THAT(options_, testing::ElementsAre('m', 'l', 'w'));
@@ -96,7 +96,7 @@ TEST_F(ArgsReaderTest, TestsMultiOptionsMultiFiles) {
 }
 
 TEST_F(ArgsReaderTest, TestsOptionsIgnoredAfterFilesPathsStart) {
-  InitArgsReader({"-l", "file.txt", "-m"});
+  DoTestAndSetActualOutputs({"-l", "file.txt", "-m"});
 
   ASSERT_EQ(options_.size(), 1);
   EXPECT_EQ(options_[0], 'l');

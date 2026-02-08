@@ -14,10 +14,10 @@ class Counts {
   void IncWords(unsigned int = 1);
   void IncChars(unsigned int = 1);
 
-  unsigned int GetBytes() const;
-  unsigned int GetLines() const;
-  unsigned int GetWords() const;
-  unsigned int GetChars() const;
+  [[nodiscard]] unsigned int GetBytes() const;
+  [[nodiscard]] unsigned int GetLines() const;
+  [[nodiscard]] unsigned int GetWords() const;
+  [[nodiscard]] unsigned int GetChars() const;
 
   Counts& operator+=(const Counts& rhs);
 
