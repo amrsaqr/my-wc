@@ -29,12 +29,12 @@ class CounterTest : public testing::Test {
     counter.Count(iss, options, is_multibyte_locale, &counts_, &error_output_);
   }
 
-  void AssertCounts(const unsigned int bytes, const unsigned int lines,
-    const unsigned int words, const unsigned int chars) {
-    ASSERT_EQ(bytes, counts_.GetBytes());
-    ASSERT_EQ(lines, counts_.GetLines());
-    ASSERT_EQ(words, counts_.GetWords());
-    ASSERT_EQ(chars, counts_.GetChars());
+  void AssertCounts(const unsigned int expected_bytes, const unsigned int expected_lines,
+    const unsigned int expected_words, const unsigned int expected_chars) {
+    EXPECT_EQ(expected_bytes, counts_.GetBytes());
+    EXPECT_EQ(expected_lines, counts_.GetLines());
+    EXPECT_EQ(expected_words, counts_.GetWords());
+    EXPECT_EQ(expected_chars, counts_.GetChars());
   }
 
   Counts counts_;
