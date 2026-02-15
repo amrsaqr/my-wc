@@ -23,6 +23,7 @@ using std::ios;
 
 Counter::Counter(const unsigned int buffer_size) {
   buffer_ = new char[buffer_size + 1];
+  buffer_size_ = buffer_size;
 }
 
 bool Counter::Count(istream& in, const Options& options, bool is_multibyte_locale,
@@ -44,11 +45,11 @@ bool Counter::Count(istream& in, const Options& options, bool is_multibyte_local
   in.exceptions(ios::badbit);
 
   // A loop that read the entire input stream (standard or file) in byte chunks
-  // of kBufferSize
+  // of buffer_size_
   while (true) {
     try {
       // Read from the input stream
-      in.read(buffer_, kBufferSize);
+      in.read(buffer_, buffer_size_);
     } catch (const std::ios_base::failure& e) {
       ostringstream oss;
       oss << "Error reading file (" << e.what() << ')';
@@ -58,7 +59,7 @@ bool Counter::Count(istream& in, const Options& options, bool is_multibyte_local
 
     // Count how many bytes were read exactly because in the last iteration we
     // might not fill the whole buffer, so we can't assume we read the whole
-    // kBufferSize
+    // buffer_size_
     const streamsize read_bytes = in.gcount();
 
     // If no bytes were read, we're simply done

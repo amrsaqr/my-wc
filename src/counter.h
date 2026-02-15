@@ -53,6 +53,9 @@ class Counter {
 
   // The buffer for reading from input streams
   char* buffer_;
+
+  // The buffer size to use
+  unsigned int buffer_size_;
 };
 
 #endif  // COUNTER_H_
