@@ -16,9 +16,9 @@ class ArgsReader {
 
   void Read(int argc, const char* const* argv);
 
-  [[nodiscard]] const vector<char>& GetOptions() const;
+  [[nodiscard]] vector<char>& GetOptions();
 
-  [[nodiscard]] const vector<string>& GetFilesPaths() const;
+  [[nodiscard]] vector<string>& GetFilesPaths();
 
  private:
   vector<char> options_;

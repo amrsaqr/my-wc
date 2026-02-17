@@ -9,7 +9,7 @@
 
 using std::string;
 
-Options::Options(const vector<char> &options) {
+Options::Options(const vector<char>& options) {
   if (options.empty()) {
     counting_bytes_ = true;
     counting_lines_ = true;

@@ -21,10 +21,8 @@ using std::streamsize;
 using std::unique_ptr;
 using std::ios;
 
-Counter::Counter(const unsigned int buffer_size) {
-  buffer_ = new char[buffer_size + 1];
-  buffer_size_ = buffer_size;
-}
+Counter::Counter(const unsigned int buffer_size) :
+  buffer_ptr_(new char[buffer_size + 1]), buffer_size_(buffer_size) {}
 
 bool Counter::Count(istream& in, const Options& options, bool is_multibyte_locale,
   Counts* counts, string* error_output) const {
@@ -43,6 +41,9 @@ bool Counter::Count(istream& in, const Options& options, bool is_multibyte_local
 
   // Make the input stream throw exceptions on bad bits
   in.exceptions(ios::badbit);
+
+  // Shortcut to the buffer
+  char* buffer_ = buffer_ptr_.get();
 
   // A loop that read the entire input stream (standard or file) in byte chunks
   // of buffer_size_
@@ -161,8 +162,4 @@ void Counter::HandleLinesAndWords(const wchar_t wide_char, bool counting_lines,
       last_char_is_space = true;
     }
   }
-}
-
-Counter::~Counter() {
-  delete[] buffer_;
 }

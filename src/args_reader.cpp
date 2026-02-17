@@ -24,6 +24,6 @@ void ArgsReader::Read(int argc, const char* const* argv) {
   }
 }
 
-const vector<char>& ArgsReader::GetOptions() const { return options_; }
+vector<char>& ArgsReader::GetOptions() { return options_; }
 
-const vector<string>& ArgsReader::GetFilesPaths() const { return files_paths_; }
+vector<string>& ArgsReader::GetFilesPaths() { return files_paths_; }

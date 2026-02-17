@@ -33,8 +33,6 @@ class Counter {
   bool Count(std::istream& in, const Options& options, bool is_multibyte_locale,
     Counts* counts, string* error_output) const;
 
-  virtual ~Counter();
-
  private:
   /**
    * A helper function that handles incrementing the lines and words count
@@ -52,7 +50,7 @@ class Counter {
   static constexpr unsigned int kBufferSize = 64 * 1024;
 
   // The buffer for reading from input streams
-  char* buffer_;
+  unique_ptr<char[]> buffer_ptr_;
 
   // The buffer size to use
   unsigned int buffer_size_;
