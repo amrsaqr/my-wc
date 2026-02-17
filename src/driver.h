@@ -8,20 +8,25 @@
 #include <string>
 #include <vector>
 #include <optional>
+#include <iostream>
 
 #include "options.h"
 #include "counter.h"
+#include "counts.h"
+#include "count_result.h"
 
 using std::string;
 using std::vector;
 using std::optional;
-using std::string_view;
+using std::ostream;
 
 class Driver {
  public:
   Driver(const Options& options, vector<string>&& files_paths, Counter&& counter);
 
-  [[nodiscard]] int Run() const;
+  void Run();
+
+  [[nodiscard]] int PrintResultsTo(ostream& out) const;
 
  protected:
   /**
@@ -35,11 +40,12 @@ class Driver {
  * @param counts The counts
  * @param optional_file_path An optional file path for which the counts have been done
  */
-  void Print(const Counts& counts, const optional<string_view>& optional_file_path = {}) const;
+  void Print(ostream& out, const Counts& counts, const optional<string>& optional_file_path = {}) const;
 
   Options options_;
   vector<string> files_paths_;
   Counter counter_;
+  vector<CountResult> results_;
 };
 
 #endif  // DRIVER_H_
