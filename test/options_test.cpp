@@ -2,10 +2,11 @@
 // Copyright 2025 Amr Saqr
 //
 
+#include "options.h"
+
 #include <gtest/gtest.h>
 #include <vector>
 #include <string>
-#include "options.h"
 
 using std::string;
 

@@ -18,8 +18,7 @@ int main(int argc, char** argv) {
   args_reader.Read(argc - 1, argv + 1);
 
   Options options(args_reader.GetOptions());
+  Counter counter;
 
-  Driver driver(options, std::move(args_reader.GetFilesPaths()), std::move(Counter()));
-  driver.Run();
-  return driver.PrintResultsTo(cout);
+  return Driver::RunAndPrintResults(cout, options, args_reader.GetFilesPaths(), counter);
 }

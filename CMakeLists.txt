@@ -24,7 +24,9 @@ add_executable(my_wc_test
         test/args_reader_test.cpp
         test/options_test.cpp
         test/counts_test.cpp
-        test/counter_test.cpp)
+        test/counter_test.cpp
+        test/driver_test.cpp
+        test/mocks/mock_counter.h)
 target_link_libraries(my_wc_test PRIVATE my_wc_lib GTest::gtest_main GTest::gmock)
 
 include(GoogleTest)

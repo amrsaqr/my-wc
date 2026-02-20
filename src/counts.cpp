@@ -4,6 +4,9 @@
 
 #include "counts.h"
 
+Counts::Counts(unsigned int bytes, unsigned int lines, unsigned int words,
+               unsigned int chars) : bytes_(bytes), lines_(lines), words_(words), chars_(chars) {}
+
 void Counts::IncBytes(const unsigned int bytes) { bytes_ += bytes; }
 
 void Counts::IncLines(const unsigned int lines) { lines_ += lines; }

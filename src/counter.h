@@ -30,7 +30,7 @@ class Counter {
    * @return true if counting was successful, and false otherwise (in case of a
    * stream error)
    */
-  bool Count(std::istream& in, const Options& options, bool is_multibyte_locale,
+  virtual bool Count(std::istream& in, const Options& options, bool is_multibyte_locale,
     Counts* counts, string* error_output) const;
 
  private:

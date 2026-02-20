@@ -8,6 +8,7 @@
 class Counts {
  public:
   Counts() = default;
+  Counts(unsigned int bytes, unsigned int lines, unsigned int words, unsigned int chars);
 
   void IncBytes(unsigned int = 1);
   void IncLines(unsigned int = 1);

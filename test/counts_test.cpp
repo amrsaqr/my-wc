@@ -2,8 +2,9 @@
 // Copyright 2025 Amr Saqr
 //
 
-#include <gtest/gtest.h>
 #include "counts.h"
+
+#include <gtest/gtest.h>
 
 class CountsTest : public testing::Test {
  protected:
@@ -54,4 +55,14 @@ TEST_F(CountsTest, TestsIncChars) {
 
   counts_.IncChars(9);
   AssertCounts(0, 0, 0, 10);
+}
+
+TEST_F(CountsTest, TestsPlusEqOperator) {
+  Counts counts1(1, 2, 3, 4);
+  counts_ += counts1;
+  AssertCounts(1, 2, 3, 4);
+
+  Counts counts2(4, 3, 2, 1);
+  counts_ += counts2;
+  AssertCounts(5, 5, 5, 5);
 }

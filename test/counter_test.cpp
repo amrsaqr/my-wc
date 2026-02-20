@@ -4,6 +4,7 @@
 
 #include "counter.h"
 
+#include <gtest/gtest.h>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -11,7 +12,6 @@
 
 #include "options.h"
 #include "counts.h"
-#include "gtest/gtest.h"
 
 using std::ostringstream;
 using std::istringstream;

@@ -13,39 +13,28 @@
 #include "options.h"
 #include "counter.h"
 #include "counts.h"
-#include "count_result.h"
 
 using std::string;
 using std::vector;
 using std::optional;
 using std::ostream;
+using std::string_view;
+using std::nullopt;
 
 class Driver {
  public:
-  Driver(const Options& options, vector<string>&& files_paths, Counter&& counter);
-
-  void Run();
-
-  [[nodiscard]] int PrintResultsTo(ostream& out) const;
+  [[nodiscard]] static int RunAndPrintResults(ostream& out, const Options& options,
+    const vector<string>&files_paths, const Counter& counter);
 
  protected:
+  static void PrintResultLine(ostream& out, const Options& options, bool counting_successful,
+    const Counts& counts, string_view error_output, const optional<string_view>& optional_file_path = nullopt);
+
   /**
    * Checks the user-defined locale for multibyte characters support
    * @return true if multibyte characters are supported, false otherwise
    */
   [[nodiscard]] static bool IsMultibyteLocale();
-
-  /**
- * Print counts depending on program options
- * @param counts The counts
- * @param optional_file_path An optional file path for which the counts have been done
- */
-  void Print(ostream& out, const Counts& counts, const optional<string>& optional_file_path = {}) const;
-
-  Options options_;
-  vector<string> files_paths_;
-  Counter counter_;
-  vector<CountResult> results_;
 };
 
 #endif  // DRIVER_H_
